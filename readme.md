@@ -9,8 +9,9 @@ More information about these can be found [here](https://github.com/Azure/autore
 
 1) Specify the start command of the extension as the `start` script in the `package.json` 
 2) Specify potential `engines` required to run the `start` script (none in this example, see for example [azure-openapi-validator](https://github.com/Azure/azure-openapi-validator/search?q=engines))
-3) Implement the AutoRest extension protocol (here: handles by library, see below)
+3) Implement the AutoRest extension protocol (here: handled by library, see below)
 
 ## Language Specific Requirements: TypeScript
 
 For TypeScript projects, simply import [autorest-extension-base](https://github.com/olydis/autorest-extension-base) which implements the AutoRest extension protocol and offers a simple API to register plugins.
+See [index.ts](./index.ts).
