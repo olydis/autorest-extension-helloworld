@@ -16,10 +16,14 @@ extension.Add("hello-world", (autoRestApi) => __awaiter(this, void 0, void 0, fu
     const inputFiles = yield Promise.all(inputFileUris.map(uri => autoRestApi.ReadFile(uri)));
     // read a setting
     const isDebugFlagSet = yield autoRestApi.GetValue("debug");
-    // emit a message
+    // emit a messages
+    autoRestApi.Message({
+        Channel: "warning",
+        Text: "Hello World! The `debug` flag is " + (isDebugFlagSet ? "set" : "not set"),
+    });
     autoRestApi.Message({
         Channel: "information",
-        Text: "Hello World! The `debug` flag is " + (isDebugFlagSet ? "set" : "not set"),
+        Text: "AutoRest offers the following input files: " + inputFiles.join(", "),
     });
     // emit a file (all input files concatenated)
     autoRestApi.WriteFile("concat.txt", inputFiles.join("\n---\n"));
