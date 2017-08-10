@@ -17,13 +17,44 @@ pipeline:
     hello-world: # <- name of plugin
         scope: hello
         # ^ will make this plugin run only when `--hello` is passed on the CLI or
-        # when there is `hello: true | <some object>` in the configuration file
+        #   when there is `hello: true | <some object>` in the configuration file
         
         #input: swagger-document/identity
         # ^ other pipeline step to use as a predecessor in the DAG
-        # takes the outputs of that step as input to this plugin.
-        # If no `input` is declared here, the plugin runs immediately and gets
-        # the `input-file`s of this AutoRest call as its inputs.
+        #   takes the outputs of that step as input to this plugin.
+        #   If no `input` is declared here, the plugin runs immediately and gets
+        #   the `input-file`s of this AutoRest call as its inputs.
+        
+        output-artifact: some-file-generated-by-hello-world
+        # ^ tag that is assigned to files written out by this pipeline step
+        #   This allows other pipeline steps to conveniently refer to or filter out
+        #   all the files that this pipeline step wrote out.     
+```
+
+Except for emitting messages, a pipeline step has no visible effect if the files it generates are not consumed by another pipeline step.
+In the following, we add another pipeline step that consumes the output of `hello-world`.
+Specifically, we instantiate the built-in `emitter` plugin that writes files to disk or hands them to AutoRest-as-a-library consumers.
+
+``` yaml
+pipeline:
+  hello-world/emitter: # <- 'hello-world' is arbitrary name, 'emitter' is a plugin built into AutoRest
+    input: hello-world
+    # ^ predecessor to this pipeline step
+    scope: scope-hello-world/emitter
+    # ^ scope that defines the inputs/outputs for the emitter plugin
+
+scope-hello-world/emitter:
+  input-artifact: some-file-generated-by-hello-world
+  output-uri-expr: $key
+  # ^ JavaScript expression that can be used to alter the file name used for writing out,
+  #   e.g. to add an extension, enforce a certain casing, or overwrite the path altogether
+  #   '$key' is represents the filename (but can be any string!) assigned to a file by the emitting pipeline step
+
+output-artifact: some-file-generated-by-hello-world
+  # ^ cause artifacts with that tag to actually be emitted (remove this if the expectation is
+  #   that the customer has to explicitly ask for an artifact). For instance, 
+  #   the built-in pipeline of AutoRest generates a number of intermediate artifacts 
+  #   (e.g. fully resolved OpenAPI definition) that are not written out by default.
 ```
 
 ## Language Specific Requirements: TypeScript
